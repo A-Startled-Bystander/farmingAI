@@ -1,35 +1,33 @@
-import re
-import pymupdf
+import time
 
-from pdfminer.high_level import extract_text_to_fp
-from pdfminer.layout import LAParams
-from io import StringIO
+import fitz # PyMuPDF
+from pymupdf import Document
+
 
 def convert_pdf_to_text(path: str):
     print("begin extraction of pdf text")
-    output = StringIO()
-    with open(path, "rb") as f:
-        extract_text_to_fp(
-            f,
-            output,
-            laparams=LAParams(),
-            output_type='text',
-            codec=None
-        )
+    start = time.time()
+    pages = []
 
-    text = output.getvalue()
-    output.close()
-    del output
-    print("Text extraction completed")
-    return text
-
-def split_page_breaks(pdf_text: str):
-    pages = pdf_text.split("\x0c") #Split at every page break
-    return_pages = []
-    for i, page in enumerate(pages, 1):
-        if page.strip() != '' and page.strip() != '\n':
-            return_pages.append({
+    doc : Document = fitz.open(path)
+    for i, page in enumerate(doc):
+        text = page.get_text().strip()
+        if text:
+            pages.append({
                 "page_num": i,
-                "page_content": page
+                "page_content": text
             })
-    return return_pages
+    doc.close()
+
+    print("Text extraction completed in", round(time.time() - start, 2), "seconds")
+    print("Text extraction completed")
+    return pages
+
+def identify_table_of_contents(pages):
+    for page in pages:
+        if "Contents" in page["page_content"]:
+
+            break
+
+    # If we cant find a page specifying "Contents" we will need to check with the LLM if any pages ID as a TOC
+    return None

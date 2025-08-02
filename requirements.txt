@@ -1,4 +1,4 @@
 python-dotenv
-#pymupdf
-pdfminer.six
+pymupdf
+#pdfminer.six
 openai
