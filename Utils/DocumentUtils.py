@@ -78,24 +78,24 @@ def retrieve_pages(path: str):
     }
 
 
-def convert_pdf_to_text(path: str):
-    print("begin extraction of pdf text")
-    start = time.time()
-    pages = []
-
-    doc : Document = fitz.open(path)
-    for i, page in enumerate(doc):
-        text = page.get_text().strip()
-        if text:
-            pages.append({
-                "page_num": i,
-                "page_content": text
-            })
-    doc.close()
-
-    print("Text extraction completed in", round(time.time() - start, 2), "seconds")
-    print("Text extraction completed")
-    return pages
+# def convert_pdf_to_text(path: str):
+#     print("begin extraction of pdf text")
+#     start = time.time()
+#     pages = []
+#
+#     doc : Document = fitz.open(path)
+#     for i, page in enumerate(doc):
+#         text = page.get_text().strip()
+#         if text:
+#             pages.append({
+#                 "page_num": i,
+#                 "page_content": text
+#             })
+#     doc.close()
+#
+#     print("Text extraction completed in", round(time.time() - start, 2), "seconds")
+#     print("Text extraction completed")
+#     return pages
 
 # def identify_table_of_contents(pages):
 #     for page in pages:
