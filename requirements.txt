@@ -2,3 +2,6 @@ python-dotenv
 pymupdf
 #pdfminer.six
 openai
+
+#install spacey library AND its English language model.
+spacy

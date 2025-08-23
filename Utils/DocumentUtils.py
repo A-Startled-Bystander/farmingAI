@@ -1,9 +1,13 @@
 import os
+import re
 import time
 
 import fitz # PyMuPDF
+import spacy
 from dotenv import load_dotenv
 from pymupdf import Document
+
+
 
 def retrieve_doc_name(path: str):
     return path.split("\\")[-1]
@@ -76,6 +80,19 @@ def retrieve_pages(path: str):
         "FILE_NAME": filename,
         "PAGES": pages
     }
+
+def is_likely_person_name(text: str, nlp: spacy.Language):
+    name_identified = False
+    text = text.strip()
+    if not text or len(text) < 2:
+        return False
+
+    words = re.split(r'\s*,\s*', text)  # splits on comma, ignoring surrounding spaces
+    for word in words:
+        doc = nlp(text)
+        return any(ent.label_ == "PERSON" for ent in doc.ents)
+
+    return False
 
 
 # def convert_pdf_to_text(path: str):
