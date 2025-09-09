@@ -4,11 +4,9 @@ import json
 import os
 
 from dotenv import load_dotenv
-from pymupdf import Page
 
-from Utils.DocumentUtils import retrieve_pages, verify_file_validity, is_likely_person_name
-from Utils.LLMUtils import generic_prompt
-from Utils.SpaceyUtils import check_spacy_model
+from Parser.ChapterExtractor import search_toc, refine_toc_object
+from Utils.DocumentUtils import retrieve_pages, verify_file_validity
 
 currentDirectory = os.path.dirname(os.path.abspath(__file__))
 exampleDoc = "Soilless Culture - Use of Substrates for the Production of Quality Horticultural Crops (Md. Asaduzzaman) (Z-Library).pdf"
@@ -42,59 +40,24 @@ def validate_file_sources():
 
 
 def retrieve_content_headers(filePath: str):
+    print("retrieve_content_headers")
     doc_pages = retrieve_pages(filePath)
+    print("doc_pages retrieved")
     toc_object, toc_found = search_toc(doc_pages)
+    print("toc_object retrieved")
+    # print()
     if toc_found:
         content_headers_list = refine_toc_object(toc_object)
+    print()
 
-# Search for table of contents in specified doc
-def search_toc(doc_pages):
-    toc_found = False
-    text_list = []
-    for page in doc_pages["PAGES"][:10]: #Only grab first 10 pages
-        search_page = page.search_for("Contents") #search_for is not case sensitive, will pick up any mention of desired word
-        # print()
-        if len(search_page) > 0:
-            x0, y0, x1, y1 = search_page[0] #Get box boundry of match
 
-            # Filter based on coordinates (e.g., y0 near top of page)
-            if y0 < 100:  # Likely near the top
-                toc_found = True
-                text_info = page.get_text("dict") #Grabs all metadata
-                # page_text = page.get_text().strip()
-                for block in text_info["blocks"]:
-                    if "lines" in block:
-                        block_text_list = []
-                        for line in block["lines"]:
-                            for span in line["spans"]:
-                                clean_block_text = re.sub(r'\s+', ' ', span["text"]).strip()
-                                if clean_block_text:
-                                    block_text_list.append(clean_block_text)
 
-                        # clean_block_text = re.sub(r'\s+', ' ', block_text).strip()
-                        if len(block_text_list) > 0:
-                            text_list.append(block_text_list)
 
-    filtered_list = [text for text in text_list if "Contents" not in text]
-    # print()
-
-    return filtered_list, toc_found
-
-def refine_toc_object(toc_object):
-    nlp = check_spacy_model()
-    if nlp:
-        refined_toc_list = []
-        for header_object in toc_object:
-            refined_header_list = []
-            for content_line in header_object:
-                person_name = is_likely_person_name(content_line, nlp)
-                print()
-
-    else:
-        return None
 
 
 
 
 retrieve_content_headers(PDF_PATH)
+# text = "Chapter 12 Influence of Soilless Culture Substrate"
+# refine_header_string(text)
 print()
